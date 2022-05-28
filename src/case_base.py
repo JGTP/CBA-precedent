@@ -1,19 +1,16 @@
-# A class for a case base, in essence it is just a list of cases
-# but it has a custom init and extra functions.
 import operator
-from unittest import case
 
 import pandas as pd
-import tabulate
 from sklearn import preprocessing
 from sklearn.linear_model import LogisticRegression
 from termcolor import colored
 
-from analysis import tr_closure
-from classes import Case, Coordinate, Dimension
+from case import Case, Coordinate, Dimension
 
 
 class CaseBase(list):
+    # A class for a case base, in essence it is just a list of cases
+    # but it has a custom init and extra functions.
     def __init__(
         self,
         csv,
@@ -22,7 +19,7 @@ class CaseBase(list):
         manords={},
         verbose=False,
         method="logreg",
-        size=None,
+        max_size=None,
     ):
         """
         Inputs.
@@ -61,30 +58,31 @@ class CaseBase(list):
             D: A dictionary mapping names of dimensions to a dimension class object.
         """
 
-        df = pd.read_csv(csv)
-        cs = [c for c in df.columns.values if c != "Label"]
-        categoricals, ordinals, D = self.determine_columns(
-            manords, categoricals, df, cs
-        )
+        try:
+            df = pd.read_csv(csv)
+        except FileNotFoundError:
+            print(f"File {csv} not found.")
+        self.cases = [c for c in df.columns.values if c != "Label"]
+        categoricals, ordinals, D = self.determine_columns(manords, categoricals, df)
         D = self.determine_order(
-            manords, categoricals, ordinals, D, df, cs, method, replace, verbose
+            manords, categoricals, ordinals, D, df, method, replace, verbose
         )
-        self.load_cases(D, df, size)
+        self.cases = self.load_cases(D, df, max_size)
 
-    def determine_columns(self, manords, categoricals, df, cs):
+    def determine_columns(self, manords, categoricals, df):
         # Identify the categorical and ordinal columns (if this hasn't been done yet)
         # by trying to convert the values of the column to integers.
         if categoricals == None:
             categoricals = []
             ordinals = []
-            for c in cs:
+            for c in self.cases:
                 try:
                     df[c].apply(int)
                     ordinals += [c]
                 except ValueError:
                     categoricals += [c]
         else:
-            ordinals = [c for c in cs if c not in categoricals]
+            ordinals = [c for c in self.cases if c not in categoricals]
 
         # Initialize the dimensions using the manually specified ones.
         D = {d: Dimension(d, manords[d]) for d in manords}
@@ -95,7 +93,7 @@ class CaseBase(list):
         return categoricals, ordinals, D
 
     def determine_order(
-        self, manords, categoricals, ordinals, D, df, cs, method, replace, verbose
+        self, manords, categoricals, ordinals, D, df, method, replace, verbose
     ):
         # Determine the order based on a method that works with a 'coefficient function'.
         if method == "pearson" or "logreg":
@@ -107,7 +105,7 @@ class CaseBase(list):
                 X = pd.get_dummies(
                     df.drop(manords, axis=1).drop("Label", axis=1)
                 ).to_numpy()
-                dcs = pd.get_dummies(df[cs]).columns.values
+                dcs = pd.get_dummies(df[self.cases]).columns.values
                 y = df["Label"].to_numpy()
                 scaler = preprocessing.StandardScaler().fit(X)
                 X = scaler.transform(X)
@@ -159,20 +157,30 @@ class CaseBase(list):
                 # Otherwise, make the relation on the original categorical values.
                 else:
                     hd = {(scvals[i], scvals[i + 1]) for i in range(len(scvals) - 1)}
-                    trhd = tr_closure(df[c].unique(), hd)
+                    trhd = self.tr_closure(df[c].unique(), hd)
                     D[c] = Dimension(c, trhd)
         return D
 
-    def load_cases(self, D, df, size):
+    # Recursive definition of the transitive closure.
+    def Rplus(self, x, R):
+        return R[x] | {z for y in R[x] for z in self.Rplus(y, R)}
+
+    # Takes as input a (finite) Hasse Diagram, where the nodes are given by A and
+    # the covering relation by R, and return the reflexive transitive closure of R.
+    def tr_closure(self, A, R):
+        R = {x: {y for y in A if (x, y) in R} for x in A}
+        return {(x, x) for x in A} | {(x, y) for x in A for y in self.Rplus(x, R)}
+
+    def load_cases(self, D, df, max_size):
         # Read the rows into a list of cases.
         cases = [
-            Case({d: Coordinate(r[d], D[d]) for d in D}, r["Label"])
-            for _, r in df.iterrows()
+            Case(index, {d: Coordinate(r[d], D[d]) for d in D}, r["Label"])
+            for index, r in df.iterrows()
         ]
 
         # Reduce the size to the desired number, if set.
-        if size is not None:
-            cases = cases[:size]
+        if max_size is not None:
+            cases = cases[:max_size]
 
         # Call the list init function to load the cases into the CB.
-        super(CaseBase, self).__init__(cases)
+        return cases
