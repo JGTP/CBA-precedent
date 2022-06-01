@@ -1,40 +1,37 @@
+import numpy as np
 import pandas as pd
-from helpers import (
-    get_forcing_relations,
-    get_landmarks,
-    get_n_removals,
-    separate_inconsistent_forcings,
-)
 from case_base import CaseBase
-
-
-def experiment_landmark_cases():
-    csvs = [
-        "../data/compas.csv",
-        "../data/mushroom.csv",
-        "../data/churn.csv",
-        "../data/admission.csv",
-        "../data/tort.csv",
-        "../data/welfare.csv",
-        "../data/corels.csv",
-    ]
-    m = "logreg"
-
-    for csv in csvs:
-        print("\n===========================================")
-        print(f"Analysing {csv} using the {m} method.")
-
-        CB = CaseBase(csv, verbose=True, method=m, max_size=300)
-        analyze(CB)
+from tqdm import tqdm
 
 
 def analyze(CB):
     print("\nComputing relevant differences between the cases.")
     inds = range(len(CB))
 
-    F, Fd, Fid = get_forcing_relations(CB, inds)
-    Id = separate_inconsistent_forcings(CB, inds, F)
-    ls = get_landmarks(CB, inds, Fid)
+    # Now compute all forcing relations between the cases.
+    F = {(i, j) for i in tqdm(inds) for j in inds if CB[i] <= CB[j]}
+    Fd = {i: [] for i in inds}
+    Fid = {i: [] for i in inds}
+    for i, j in F:
+        Fd[i] += [j]
+        Fid[j] += [i]
+
+    # Separate from F the forcings that lead to inconsistency.
+    I = {(i, j) for (i, j) in F if CB[i].s != CB[j].s}
+    Id = {i: set() for i in inds}
+    for i, j in I:
+        Id[i] |= {j}
+        Id[j] |= {i}
+
+    # Gather all landmarks for both classes.
+    ls = {
+        s: [
+            i
+            for i in inds
+            if CB[i].s == s and not any(CB[i].s == CB[j].s for j in Fid[i] if i != j)
+        ]
+        for s in [0, 1]
+    }
 
     # Make a DataFrame for holding the analysis results.
     adf = pd.DataFrame()
@@ -45,7 +42,14 @@ def analyze(CB):
     adf["Label"] = [CB[i].s for i in inds]
     adf["Landmark"] = [i in ls[CB[i].s] for i in inds]
 
-    removals = get_n_removals(inds, Id)
+    # Compute the minimum (?) number of deletions before the CB is consistent.
+    removals = 0
+    while sum(s := [len(Id[i]) for i in inds]) != 0:
+        k = np.argmax(s)
+        for i in inds:
+            Id[i] -= {k}
+        Id[k] = set()
+        removals += 1
 
     # Print the results of the analysis.
     print(f"\nNumber of cases: {len(CB)}.")
@@ -57,3 +61,28 @@ def analyze(CB):
         f"Percentage trivial cases: {round(((len(CB) - (len(ls[0]) + len(ls[1]))) / len(CB)) * 100, 1)}%."
     )
     print(f"Number of landmarks: {len(ls[0]) + len(ls[1])}.")
+
+
+def experiment():
+    small_sets = False
+
+    csvs = [
+        # "data/compas.csv",
+        # "data/mushroom.csv",
+        # "data/churn.csv",
+        # "data/admission.csv",
+        # "data/tort.csv",
+        # "data/welfare.csv",
+        # "data/corels.csv",
+    ]
+    m = "pearson"
+
+    for csv in csvs:
+        print("\n===========================================")
+        print(f"Analysing {csv} using the {m} method.")
+
+        # Load the case base with correlation orders.
+        CB = CaseBase(csv, verb=True, method=m, size=300 if small_sets else -1)
+
+        # Run the analysis.
+        analyze(CB)

@@ -1,4 +1,24 @@
-from experiments.authoritativeness import experiment_authoritative_precedents
+from experiments import authoritativeness, landmarks
 
 if __name__ == "__main__":
-    experiment_authoritative_precedents()
+    # landmarks.experiment()
+    authoritativeness.experiment(
+        csvs=[
+            "data/mushroom.csv",
+            "data/churn.csv",
+            "data/admission.csv",
+            # "data/test.csv",
+        ],
+        m="pearson",
+        make_consistent=True,
+    )
+    authoritativeness.experiment(
+        csvs=[
+            "data/mushroom.csv",
+            "data/churn.csv",
+            "data/admission.csv",
+            # "data/test.csv",
+        ],
+        m="pearson",
+        make_consistent=False,
+    )
