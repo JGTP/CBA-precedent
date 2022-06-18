@@ -31,7 +31,6 @@ def get_precedent_distribution(CB, auth_method=None):
 
 
 def n_agreement(case, CB):
-    # given a case index and a case base, returns a list of best precedents as comparisons
     same_outcome = [c for c in CB if c.s == case.s]
     precedents = []
     for other_case in same_outcome:
@@ -41,9 +40,9 @@ def n_agreement(case, CB):
 
 
 def n_disagreement(case, CB):
-    same_outcome = [c for c in CB if c.s != case.s]
+    other_outcome = [c for c in CB if c.s != case.s]
     precedents = []
-    for other_case in same_outcome:
+    for other_case in other_outcome:
         if case <= other_case:
             precedents.append(other_case.name)
     return len(precedents)
