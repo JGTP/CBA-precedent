@@ -1,5 +1,5 @@
 from case_base import CaseBase
-from helpers import get_precedent_distribution
+from precedents import get_precedent_distribution
 
 
 def experiment(csvs, m, make_consistent):
@@ -23,4 +23,3 @@ def experiment(csvs, m, make_consistent):
             print(
                 f"Precedent distribution: {get_precedent_distribution(CB, auth_method)}."
             )
-                

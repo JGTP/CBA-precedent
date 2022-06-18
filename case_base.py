@@ -10,7 +10,16 @@ from tabulate import tabulate
 from termcolor import colored
 from tqdm import tqdm
 
-from helpers import tr_closure
+
+def Rplus(x, R):
+    return R[x] | {z for y in R[x] for z in Rplus(y, R)}
+
+
+# Takes as input a (finite) Hasse Diagram, where the nodes are given by A and
+# the covering relation by R, and return the reflexive transitive closure of R.
+def tr_closure(A, R):
+    R = {x: {y for y in A if (x, y) in R} for x in A}
+    return {(x, x) for x in A} | {(x, y) for x in A for y in Rplus(x, R)}
 
 
 def le(s, v1, v2):
@@ -323,7 +332,6 @@ class CaseBase(list):
     def get_n_trivial_strategies(self, auth_method=None):
         forcings = self.get_forcings(range(len(self)))
         return len(forcings)
-
 
     def remove_inconsistent_forcings(self, inds, F):
         # Separate from F the forcings that lead to inconsistency.
