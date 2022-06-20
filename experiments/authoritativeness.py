@@ -7,12 +7,12 @@ def experiment(csvs, m, make_consistent):
         print("\n===========================================")
         print(f"Analysing {csv} using the {m} method.")
 
-        for auth_method in [None, "relative", "absolute", "product", "harmonic"]:
+        for auth_method in [None]:
             print(f"Evaluating for auth_method={auth_method}...")
-            CB = CaseBase(csv, verb=True, method=m)
-            initial_size = len(CB)
-            print(f"Initial size: {initial_size}.")
+            CB = CaseBase(csv, verb=True, method=m, auth_method=auth_method)
             if make_consistent:
+                initial_size = len(CB)
+                print(f"Initial size: {initial_size}.")
                 CB.take_consistent_subset()
                 reduced_size = len(CB)
                 print(f"Reduced size: {reduced_size}.")
@@ -20,6 +20,4 @@ def experiment(csvs, m, make_consistent):
                     f"Removed {initial_size - reduced_size} ({100*(initial_size - reduced_size)/initial_size} %)."
                 )
 
-            print(
-                f"Precedent distribution: {get_precedent_distribution(CB, auth_method)}."
-            )
+            print(f"Precedent distribution: {get_precedent_distribution(CB)}.")

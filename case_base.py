@@ -10,6 +10,13 @@ from tabulate import tabulate
 from termcolor import colored
 from tqdm import tqdm
 
+from authoritativeness import (
+    absolute_authoritativeness,
+    harmonic_authoritativeness,
+    product_authoritativeness,
+    relative_authoritativeness,
+)
+
 
 def Rplus(x, R):
     return R[x] | {z for y in R[x] for z in Rplus(y, R)}
@@ -28,22 +35,6 @@ def le(s, v1, v2):
 
 def lt(s, v1, v2):
     return v1 < v2 if s == 1 else v1 > v2
-
-
-# A dimension is a partially ordered set.
-# This order must be specified at creation by the 'le' function.
-# Its elements are assumed to be partially ordered by <=, specified
-# by the 'le' function, where the default direction is for the plaintiff.
-class Dimension:
-    def __init__(self, name, le):
-        self.name = name
-        self.le = le if type(le) != set else lambda x, y: (x, y) in le
-
-    def __eq__(self, d):
-        return self.name == d.name and self.le == d.le
-
-    def __repr__(self):
-        return f"dim({self.name})"
 
 
 # A coordonate is a value in some dimension.
@@ -73,6 +64,22 @@ class Coordinate:
 
     def __eq__(self, value):
         return self.value == value
+
+
+# A dimension is a partially ordered set.
+# This order must be specified at creation by the 'le' function.
+# Its elements are assumed to be partially ordered by <=, specified
+# by the 'le' function, where the default direction is for the plaintiff.
+class Dimension:
+    def __init__(self, name, le):
+        self.name = name
+        self.le = le if type(le) != set else lambda x, y: (x, y) in le
+
+    def __eq__(self, d):
+        return self.name == d.name and self.le == d.le
+
+    def __repr__(self):
+        return f"dim({self.name})"
 
 
 # A class for cases, i.e. fact situations together with an outcome.
@@ -113,6 +120,9 @@ class Case:
             if not le(self.s, self[d], G[d]):
                 yield d
 
+    def set_alpha(self, authoritativeness):
+        self.alpha = authoritativeness
+
 
 # A class for a case base, in essence it is just a list of cases
 # but it has a custom init and extra functions.
@@ -124,7 +134,8 @@ class CaseBase(list):
         replace=False,
         manords={},
         verb=False,
-        method="logreg",
+        method="pearson",
+        auth_method=None,
         size=-1,
     ):
         """
@@ -167,6 +178,7 @@ class CaseBase(list):
         # Read the csv file and create a list holding the column names.
         df = pd.read_csv(csv)
         self.df = df
+        self.auth_method = auth_method
         cs = [c for c in df.columns.values if c != "Label"]
 
         # Identify the categorical and ordinal columns (if this hasn't been done yet)
@@ -267,6 +279,19 @@ class CaseBase(list):
 
         # Call the list init function to load the cases into the CB.
         super(CaseBase, self).__init__(cases)
+        self.calculate_alphas()
+
+    def calculate_alphas(self):
+        if self.auth_method is not None:
+            for c in self:
+                if self.auth_method == "relative":
+                    c.set_alpha(relative_authoritativeness(c, self))
+                if self.auth_method == "absolute":
+                    c.set_alpha(absolute_authoritativeness(c, self))
+                if self.auth_method == "product":
+                    c.set_alpha(product_authoritativeness(c, self))
+                if self.auth_method == "harmonic":
+                    c.set_alpha(harmonic_authoritativeness(c, self))
 
     # A function which pretty prints a comparison between cases a and b.
     def compare(self, a, b):
@@ -325,13 +350,11 @@ class CaseBase(list):
         return consistent_subset
 
     def get_forcings(self, inds):
-        return {
-            (i, j) for i in tqdm(inds, miniters=100) for j in inds if self[i] <= self[j]
-        }
+        return {(i, j) for i in tqdm(inds) for j in inds if self[i] <= self[j]}
 
-    def get_n_trivial_strategies(self, auth_method=None):
-        forcings = self.get_forcings(range(len(self)))
-        return len(forcings)
+    # def get_n_trivial_strategies(self, auth_method=None):
+    #     forcings = self.get_forcings(range(len(self)))
+    #     return len(forcings)
 
     def remove_inconsistent_forcings(self, inds, F):
         # Separate from F the forcings that lead to inconsistency.

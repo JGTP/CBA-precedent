@@ -1,13 +1,14 @@
 import numpy as np
 from tqdm import tqdm
 
-from authoritativeness import alpha, relative_authoritativeness
 
-
-def get_precedent_distribution(CB, auth_method=None):
+def get_precedent_distribution(CB):
     n_precedents = []
     for case in tqdm(CB):
-        best_precedents = get_best_precedents(case, CB, auth_method)
+        if CB.auth_method is None:
+            best_precedents = get_best_precedents_naive(case, CB)
+        else:
+            best_precedents = get_best_precedents_alpha(case, CB)
         n_precedents.append(len(best_precedents))
     return determine_distribution(n_precedents)
 
@@ -19,14 +20,40 @@ def determine_distribution(n_precedents):
     return mean, std
 
 
-def get_best_precedents(case, CB, method):
-    if method is None:
-        same_outcome = [c for c in CB if c.s == case.s]
-    else:
-        same_outcome = [
-            c
-            for c in CB
-            if (c.s == case.s and alpha(c, CB, method) >= alpha(case, CB, method))
-        ]
-    opposite_outcome = [c for c in CB if (c.s != case.s and c <= case)]
-    return [c for c in same_outcome if c not in opposite_outcome]
+def get_best_precedents_naive(f, CB):
+    same_outcome = [c for c in CB if (c.s == f.s) and (c.name != f.name)]
+    bested = set()
+    for c in same_outcome:
+        bested = inner_loop_naive(f, same_outcome, c, bested)
+    return [c for c in same_outcome if c.name not in bested]
+
+
+def get_best_precedents_alpha(f, CB):
+    same_outcome = [c for c in CB if (c.s == f.s) and (c.name != f.name)]
+    bested = set()
+    for c in same_outcome:
+        bested = inner_loop_alpha(f, same_outcome, c, bested)
+    return [c for c in same_outcome if c.name not in bested]
+
+
+def inner_loop_naive(f, same_outcome, c, bested):
+    for oc in same_outcome:
+        if c.name not in bested:
+            if any(c.diff(f.F)):
+                if oc.name != c.name:
+                    bested.add(c.name)
+        else:
+            break
+    return bested
+
+
+def inner_loop_alpha(f, same_outcome, c, bested):
+    for oc in same_outcome:
+        if c.name not in bested:
+            if any(c.diff(f.F)):
+                if oc.name != c.name:
+                    if c.alpha > oc.alpha:
+                        bested.add(oc.name)
+        else:
+            break
+    return bested

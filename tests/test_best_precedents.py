@@ -1,37 +1,43 @@
+import pandas as pd
+import pytest
 from case_base import CaseBase
-from precedents import get_best_precedents
+from precedents import get_best_precedents_alpha, get_best_precedents_naive
 
 
-def test_find_best_precedents_naive(csv_file):
-    CB = CaseBase(csv_file)
+@pytest.fixture()
+def inconst_csv(tmp_path_factory):
+    data = {
+        "Gift": [1, 1, 1, 1, 1, 1, 1, 1],
+        "Present": [1, 1, 1, 1, 1, 1, 1, 1],
+        "Website": [0, 0, 0, 2, 2, 2, 15, 15],
+        "High-cost": [0, 0, 0, 0, 0, 0, 0, 0],
+        "Label": [1, 1, 1, 1, 1, 0, 1, 0],
+    }
+    df = pd.DataFrame(data)
+    path = tmp_path_factory.mktemp("data") / "inconst.csv"
+    df.to_csv(path, index=False, header=True)
+    return path
+
+
+def test_find_best_precedents_naive(inconst_csv):
+    CB = CaseBase(inconst_csv)
     case = CB[0]
-    precedents = get_best_precedents(case, CB, None)
-    assert len(precedents) == 6
+    precedents = get_best_precedents_naive(case, CB)
+    assert len(precedents) == 5
+    assert precedents[0].name == 1
+    assert precedents[1].name == 2
+    assert precedents[2].name == 3
+    assert precedents[3].name == 4
+    assert precedents[4].name == 6
 
 
-def test_find_best_precedents_rel(csv_file):
-    CB = CaseBase(csv_file)
+def test_find_best_precedents_rel(inconst_csv):
+    CB = CaseBase(inconst_csv, auth_method="relative")
     case = CB[0]
-    precedents = get_best_precedents(case, CB, "relative")
-    assert len(precedents) == 4
-
-
-def test_find_best_precedents_abs(csv_file):
-    CB = CaseBase(csv_file)
-    case = CB[0]
-    precedents = get_best_precedents(case, CB, "absolute")
-    assert len(precedents) == 3
-
-
-def test_find_best_precedents_prod(csv_file):
-    CB = CaseBase(csv_file)
-    case = CB[0]
-    precedents = get_best_precedents(case, CB, "product")
-    assert len(precedents) == 3
-
-
-def test_find_best_precedents_harm(csv_file):
-    CB = CaseBase(csv_file)
-    case = CB[0]
-    precedents = get_best_precedents(case, CB, "harmonic")
-    assert len(precedents) == 3
+    precedents = get_best_precedents_alpha(case, CB)
+    assert len(precedents) == 5
+    assert precedents[0].name == 1
+    assert precedents[1].name == 2
+    assert precedents[2].name == 3
+    assert precedents[3].name == 4
+    assert precedents[4].name == 6

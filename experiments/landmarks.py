@@ -68,14 +68,14 @@ def experiment():
 
     csvs = [
         # "data/compas.csv",
-        # "data/mushroom.csv",
-        # "data/churn.csv",
-        # "data/admission.csv",
+        "data/mushroom.csv",
+        "data/churn.csv",
+        "data/admission.csv",
         # "data/tort.csv",
         # "data/welfare.csv",
         # "data/corels.csv",
     ]
-    m = "pearson"
+    m = "logreg"
 
     for csv in csvs:
         print("\n===========================================")
