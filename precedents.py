@@ -24,8 +24,17 @@ def get_best_precedents_naive(f, CB):
     same_outcome = [c for c in CB if (c.s == f.s) and (c.name != f.name)]
     bested = set()
     for c in same_outcome:
-        bested = inner_loop_naive(f, same_outcome, c, bested)
+        if c.name not in bested:
+            bested = inner_loop_naive(f, same_outcome, c, bested)
     return [c for c in same_outcome if c.name not in bested]
+
+
+def inner_loop_naive(f, same_outcome, c, bested):
+    for oc in same_outcome:
+        if any(c.diff(f.F)):
+            if oc.name != c.name:
+                bested.add(c.name)
+    return bested
 
 
 def get_best_precedents_alpha(f, CB):
@@ -34,17 +43,6 @@ def get_best_precedents_alpha(f, CB):
     for c in same_outcome:
         bested = inner_loop_alpha(f, same_outcome, c, bested)
     return [c for c in same_outcome if c.name not in bested]
-
-
-def inner_loop_naive(f, same_outcome, c, bested):
-    for oc in same_outcome:
-        if c.name not in bested:
-            if any(c.diff(f.F)):
-                if oc.name != c.name:
-                    bested.add(c.name)
-        else:
-            break
-    return bested
 
 
 def inner_loop_alpha(f, same_outcome, c, bested):

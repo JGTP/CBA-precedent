@@ -7,7 +7,7 @@ def experiment(csvs, m, make_consistent):
         print("\n===========================================")
         print(f"Analysing {csv} using the {m} method.")
 
-        for auth_method in [None, "relative", "absolute", "product", "harmonic"]:
+        for auth_method in [None]:
             print(f"Evaluating for auth_method={auth_method}...")
             CB = CaseBase(csv, verb=True, method=m, auth_method=auth_method)
             if make_consistent:

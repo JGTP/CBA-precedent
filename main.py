@@ -14,8 +14,8 @@ if __name__ == "__main__":
     # )
     authoritativeness.experiment(
         csvs=[
-            "data/mushroom.csv",
-            "data/churn.csv",
+            # "data/mushroom.csv",
+            # "data/churn.csv",
             "data/admission.csv",
             # "data/test.csv",
         ],
