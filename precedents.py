@@ -2,6 +2,13 @@ import numpy as np
 from tqdm import tqdm
 
 
+def determine_distribution(n_precedents):
+    n_precedents = np.array(n_precedents)
+    mean = n_precedents.mean()
+    std = n_precedents.std()
+    return mean, std
+
+
 def get_precedent_distribution(CB):
     n_precedents = []
     for case in tqdm(CB):
@@ -11,13 +18,6 @@ def get_precedent_distribution(CB):
             best_precedents = get_best_precedents_alpha(case, CB)
         n_precedents.append(len(best_precedents))
     return determine_distribution(n_precedents)
-
-
-def determine_distribution(n_precedents):
-    n_precedents = np.array(n_precedents)
-    mean = n_precedents.mean()
-    std = n_precedents.std()
-    return mean, std
 
 
 def get_best_precedents_naive(f, CB):
@@ -31,9 +31,8 @@ def get_best_precedents_naive(f, CB):
 
 def inner_loop_naive(f, same_outcome, c, bested):
     for oc in same_outcome:
-        if any(c.diff(f.F)):
-            if oc.name != c.name:
-                bested.add(c.name)
+        if set(c.diff(f.F)) > set(oc.diff(f.F)):
+            bested.add(c.name)
     return bested
 
 
