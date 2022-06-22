@@ -56,7 +56,9 @@ def analyze(CB):
     print(
         f"Percentage consistent cases: {round(adf['Consistency'].describe()['mean']*100, 1)}%."
     )
-    print(f"Removals to obtain consistency: {round(removals/len(CB)*100, 1)}%.")
+    print(
+        f"Removals to obtain consistency: {removals} ({round(removals/len(CB)*100, 1)}%)."
+    )
     print(
         f"Percentage trivial cases: {round(((len(CB) - (len(ls[0]) + len(ls[1]))) / len(CB)) * 100, 1)}%."
     )
@@ -67,7 +69,7 @@ def experiment():
     small_sets = False
 
     csvs = [
-        # "data/compas.csv",
+        # # "data/compas.csv",
         "data/mushroom.csv",
         "data/churn.csv",
         "data/admission.csv",
@@ -75,7 +77,7 @@ def experiment():
         # "data/welfare.csv",
         # "data/corels.csv",
     ]
-    m = "logreg"
+    m = "pearson"
 
     for csv in csvs:
         print("\n===========================================")

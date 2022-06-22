@@ -20,9 +20,9 @@ def test_number_of_inconsistent_forcing_relations_naive(simple_csv):
     inds = range(len(CB))
     forcings = CB.get_forcings(inds)
     assert len(forcings) == 11
-    cons_forcings = CB.remove_inconsistent_forcings(inds, forcings)
-    assert len(cons_forcings) == 4
-    assert len(forcings) - len(cons_forcings) == 7
+    Id = CB.determine_inconsistent_forcings(inds, forcings)
+    n_inconst_forcings = CB.get_n_inconst_forcings(Id)
+    assert n_inconst_forcings == 4
 
 
 def test_number_of_inconsistent_forcing_relations_relative(simple_csv):
@@ -30,14 +30,36 @@ def test_number_of_inconsistent_forcing_relations_relative(simple_csv):
     inds = range(len(CB))
     forcings = CB.get_forcings(inds)
     assert len(forcings) == 9
-    cons_forcings = CB.remove_inconsistent_forcings(inds, forcings)
-    assert len(cons_forcings) == 4
-    assert len(forcings) - len(cons_forcings) == 5
+    Id = CB.determine_inconsistent_forcings(inds, forcings)
+    n_inconst_forcings = CB.get_n_inconst_forcings(Id)
+    assert n_inconst_forcings == 0
 
 
-# def test_number_of_trivial_forcing_relations_naive():
-#     assert False
+def test_number_of_inconsistent_forcing_admission():
+    CB = CaseBase("data/admission.csv", auth_method="relative")
+    inds = range(len(CB))
+    forcings = CB.get_forcings(inds)
+    assert len(forcings) == 53202
+    Id = CB.determine_inconsistent_forcings(inds, forcings)
+    n_inconst_forcings = CB.get_n_inconst_forcings(Id)
+    assert n_inconst_forcings == 0
 
 
-# def test_number_of_trivial_forcing_relations_relative():
-#     assert False
+def test_number_of_inconsistent_forcing_churn():
+    CB = CaseBase("data/churn500.csv", auth_method="relative")
+    inds = range(len(CB))
+    forcings = CB.get_forcings(inds)
+    assert len(forcings) == 3103
+    Id = CB.determine_inconsistent_forcings(inds, forcings)
+    n_inconst_forcings = CB.get_n_inconst_forcings(Id)
+    assert n_inconst_forcings == 0
+
+
+def test_number_of_inconsistent_forcing_mushroom():
+    CB = CaseBase("data/mushroom500.csv", auth_method="relative")
+    inds = range(len(CB))
+    forcings = CB.get_forcings(inds)
+    assert len(forcings) == 2507
+    Id = CB.determine_inconsistent_forcings(inds, forcings)
+    n_inconst_forcings = CB.get_n_inconst_forcings(Id)
+    assert n_inconst_forcings == 0

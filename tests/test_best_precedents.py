@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 from case_base import CaseBase
-from precedents import get_best_precedents_alpha, get_best_precedents_naive
+from precedents import get_best_precedents
 
 
 @pytest.fixture()
@@ -22,7 +22,7 @@ def inconst_csv(tmp_path_factory):
 def test_find_best_precedents_naive(inconst_csv):
     CB = CaseBase(inconst_csv)
     case = CB[0]
-    precedents = get_best_precedents_naive(case, CB)
+    precedents = get_best_precedents(case, CB)
     assert len(precedents) == 5
     assert precedents[0].name == 1
     assert precedents[1].name == 2
@@ -34,7 +34,7 @@ def test_find_best_precedents_naive(inconst_csv):
 def test_find_best_precedents_rel(inconst_csv):
     CB = CaseBase(inconst_csv, auth_method="relative")
     case = CB[0]
-    precedents = get_best_precedents_alpha(case, CB)
+    precedents = get_best_precedents(case, CB)
     assert len(precedents) == 5
     assert precedents[0].name == 1
     assert precedents[1].name == 2

@@ -330,12 +330,12 @@ class CaseBase(list):
     def take_consistent_subset(self):
         inds = range(len(self))
         forcings = self.get_forcings(inds)
-        Id = self.remove_inconsistent_forcings(inds, forcings)
-        inconsistent_indices = self.determine_inconsistencies(inds, Id)
+        Id = self.determine_inconsistent_forcings(inds, forcings)
+        inconsistent_indices = self.determine_removals(inds, Id)
         consistent_subset = self.remove_inconsistencies(inconsistent_indices)
         super(CaseBase, self).__init__(consistent_subset)
 
-    def determine_inconsistencies(self, inds, Id):
+    def determine_removals(self, inds, Id):
         to_remove = []
         while sum(s := [len(Id[i]) for i in inds]) != 0:
             k = np.argmax(s)
@@ -360,15 +360,21 @@ class CaseBase(list):
                 if self[i] <= self[j] and self[i].alpha <= self[j].alpha
             }
 
-    # def get_n_trivial_strategies(self, auth_method=None):
-    #     forcings = self.get_forcings(range(len(self)))
-    #     return len(forcings)
-
-    def remove_inconsistent_forcings(self, inds, F):
+    def determine_inconsistent_forcings(self, inds, F):
         # Separate from F the forcings that lead to inconsistency.
-        I = {(i, j) for (i, j) in tqdm(F) if self[i].s != self[j].s}
+        if self.auth_method is None:
+            I = {(i, j) for (i, j) in F if self[i].s != self[j].s}
+        else:
+            I = {
+                (i, j)
+                for (i, j) in F
+                if self[i].s != self[j].s and self[i].alpha >= self[j].alpha
+            }
         Id = {i: set() for i in inds}
         for i, j in I:
             Id[i] |= {j}
             Id[j] |= {i}
         return Id
+
+    def get_n_inconst_forcings(self, Id):
+        return sum([len(Id[i]) for i in Id])

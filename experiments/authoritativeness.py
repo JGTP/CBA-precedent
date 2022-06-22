@@ -7,7 +7,7 @@ def experiment(csvs, m, make_consistent):
         print("\n===========================================")
         print(f"Analysing {csv} using the {m} method.")
 
-        for auth_method in [None]:
+        for auth_method in [None, "relative"]:
             print(f"Evaluating for auth_method={auth_method}...")
             CB = CaseBase(csv, verb=True, method=m, auth_method=auth_method)
             if make_consistent:
@@ -20,8 +20,4 @@ def experiment(csvs, m, make_consistent):
                     f"Removed {initial_size - reduced_size} ({100*(initial_size - reduced_size)/initial_size} %)."
                 )
 
-            print(f"Precedent distribution: {get_precedent_distribution(CB)}.")
-            inds = range(len(CB))
-            forcings = CB.get_forcings(inds)
-            cons_forcings = CB.remove_inconsistent_forcings(inds, forcings)
-            print(f"Inconsistent forcings: {len(forcings) - len(cons_forcings)}.")
+            # print(f"Precedent distribution: {get_precedent_distribution(CB)}.")

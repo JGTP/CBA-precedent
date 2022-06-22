@@ -12,5 +12,5 @@ def test_best_precedent_distribution_naive(csv_file):
 def test_best_precedent_distribution_rel(csv_file):
     CB = CaseBase(csv_file, auth_method="relative")
     mean, std = get_precedent_distribution(CB)
-    assert round(mean, 2) == 1.43
-    assert round(std, 2) == 1.5
+    assert round(mean, 2) == 3.43
+    assert round(std, 2) == 1.68
