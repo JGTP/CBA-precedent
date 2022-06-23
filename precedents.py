@@ -18,29 +18,39 @@ def get_precedent_distribution(CB):
 
 
 def get_best_precedents(f, CB):
-    same_outcome = [c for c in CB if (c.s == f.s) and (c.name != f.name)]
+    comparisons = get_comparisons(f, CB)
     bested = set()
-    for c in same_outcome:
-        if c.name not in bested:
+    for c in comparisons:
+        if c[0] not in bested:
             if CB.auth_method is None:
-                bested = inner_loop_naive(f, same_outcome, c, set(c.diff(f.F)), bested)
+                bested = inner_loop_naive(comparisons, c, bested)
             else:
-                bested = inner_loop_alpha(f, same_outcome, c, set(c.diff(f.F)), bested)
-    return [c for c in same_outcome if c.name not in bested]
+                bested = inner_loop_alpha(comparisons, c, bested)
+    return [c for c in comparisons if c[0] not in bested]
 
 
-def inner_loop_naive(f, same_outcome, c, diff_c, bested):
-    for oc in same_outcome:
-        if diff_c > set(oc.diff(f.F)):
-            bested.add(c.name)
+def get_comparisons(f, CB):
+    if CB.auth_method is None:
+        return [
+            (c.name, set(c.diff(f.F))) for c in CB if c.s == f.s and c.name != f.name
+        ]
+    else:
+        return [
+            (c.name, set(c.diff(f.F)), c.alpha)
+            for c in CB
+            if c.s == f.s and c.name != f.name
+        ]
+
+
+def inner_loop_naive(comparisons, c, bested):
+    for oc in comparisons:
+        if c[1] > oc[1] and c[0] != oc[0]:
+            bested.add(c[0])
     return bested
 
 
-def inner_loop_alpha(f, same_outcome, c, diff_c, bested):
-    for oc in same_outcome:
-        if diff_c > set(oc.diff(f.F)):
-            if c.alpha < oc.alpha:
-                bested.add(c.name)
-        else:
-            break
+def inner_loop_alpha(comparisons, c, bested):
+    for oc in comparisons:
+        if c[1] > oc[1] and c[0] != oc[0] and c[2] <= oc[2]:
+            bested.add(c[0])
     return bested
