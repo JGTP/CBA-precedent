@@ -23,22 +23,22 @@ def get_best_precedents(f, CB):
     for c in same_outcome:
         if c.name not in bested:
             if CB.auth_method is None:
-                bested = inner_loop_naive(f, same_outcome, c, bested)
+                bested = inner_loop_naive(f, same_outcome, c, set(c.diff(f.F)), bested)
             else:
-                bested = inner_loop_alpha(f, same_outcome, c, bested)
+                bested = inner_loop_alpha(f, same_outcome, c, set(c.diff(f.F)), bested)
     return [c for c in same_outcome if c.name not in bested]
 
 
-def inner_loop_naive(f, same_outcome, c, bested):
+def inner_loop_naive(f, same_outcome, c, diff_c, bested):
     for oc in same_outcome:
-        if set(c.diff(f.F)) > set(oc.diff(f.F)):
+        if diff_c > set(oc.diff(f.F)):
             bested.add(c.name)
     return bested
 
 
-def inner_loop_alpha(f, same_outcome, c, bested):
+def inner_loop_alpha(f, same_outcome, c, diff_c, bested):
     for oc in same_outcome:
-        if set(c.diff(f.F)) > set(oc.diff(f.F)):
+        if diff_c > set(oc.diff(f.F)):
             if c.alpha < oc.alpha:
                 bested.add(c.name)
         else:

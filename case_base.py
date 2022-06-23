@@ -349,8 +349,8 @@ class CaseBase(list):
         consistent_subset = [case for case in self if case.name not in indices]
         return consistent_subset
 
-    def get_forcings(self, inds):
-        if self.auth_method is None:
+    def get_forcings(self, inds, make_consistent=False):
+        if self.auth_method is None or make_consistent:
             return {(i, j) for i in tqdm(inds) for j in inds if self[i] <= self[j]}
         else:
             return {

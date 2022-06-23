@@ -22,9 +22,9 @@ def experiment(csvs, m, make_consistent):
                     f"Removed {initial_size - reduced_size} ({100*(initial_size - reduced_size)/initial_size} %)."
                 )
 
-            distr = get_precedent_distribution(CB)
-            print(f"Precedent distribution: {}.")
+            mean, std = get_precedent_distribution(CB)
+            print(f"Precedent distribution: {round(mean,2)} ({round(std,2)}).")
             inds = range(len(CB))
-            forcings = CB.get_forcings(inds)
+            forcings = CB.get_forcings(inds, make_consistent)
             Id = CB.determine_inconsistent_forcings(inds, forcings)
             print(f"N inconsistent forcings: {CB.get_n_inconst_forcings(Id)}.")
