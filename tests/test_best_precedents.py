@@ -24,11 +24,11 @@ def test_find_best_precedents_naive(inconst_csv):
     case = CB[0]
     precedents = get_best_precedents(case, CB)
     assert len(precedents) == 5
-    assert precedents[0].name == 1
-    assert precedents[1].name == 2
-    assert precedents[2].name == 3
-    assert precedents[3].name == 4
-    assert precedents[4].name == 6
+    assert precedents[0][0] == 1
+    assert precedents[1][0] == 2
+    assert precedents[2][0] == 3
+    assert precedents[3][0] == 4
+    assert precedents[4][0] == 6
 
 
 def test_find_best_precedents_rel(inconst_csv):
@@ -36,8 +36,8 @@ def test_find_best_precedents_rel(inconst_csv):
     case = CB[0]
     precedents = get_best_precedents(case, CB)
     assert len(precedents) == 5
-    assert precedents[0].name == 1
-    assert precedents[1].name == 2
-    assert precedents[2].name == 3
-    assert precedents[3].name == 4
-    assert precedents[4].name == 6
+    assert precedents[0][0] == 1
+    assert precedents[1][0] == 2
+    assert precedents[2][0] == 3
+    assert precedents[3][0] == 4
+    assert precedents[4][0] == 6
