@@ -10,12 +10,10 @@ from tabulate import tabulate
 from termcolor import colored
 from tqdm import tqdm
 
-from authoritativeness import (
-    absolute_authoritativeness,
-    harmonic_authoritativeness,
-    product_authoritativeness,
-    relative_authoritativeness,
-)
+from authoritativeness import (absolute_authoritativeness,
+                               harmonic_authoritativeness,
+                               product_authoritativeness,
+                               relative_authoritativeness)
 
 
 def Rplus(x, R):
@@ -118,6 +116,11 @@ class Case:
     def diff(self, G):
         for d in self.F:
             if not le(self.s, self[d], G[d]):
+                yield d
+
+    def comp_diff(self, G):
+        for d in self.F:
+            if le(self.s, self[d], G[d]):
                 yield d
 
     def set_alpha(self, authoritativeness):
@@ -231,7 +234,7 @@ class CaseBase(list):
 
             # Log the orders of the ordinal features.
             if verb:
-                print("\nPrinting dimension orders.")
+                print("Dimension orders.")
                 for c in ordcs:
                     print(
                         f"{colored(c, 'red')}: {colored('Ascending' if coeffs[c] > 0 else 'Descending', 'green')} ({round(coeffs[c], 2)})"
