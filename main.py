@@ -10,27 +10,27 @@ def generate_row(mean, std, n_inconsistent_forcings, trivial, none, some, all):
 
 if __name__ == "__main__":
     exp_dict = {
-        "Admission": {
-            "path": "data/admission.csv",
-            "Full dataset": {
-                "auth_methods": {
-                    None: {},
-                    "relative": {},
-                    "absolute": {},
-                    "product": {},
-                    "harmonic": {},
-                },
-            },
-            # "Consistent subset": {
-            #     "auth_methods": {
-            #         None: {},
-            #         "relative": {},
-            #         "absolute": {},
-            #         "product": {},
-            #         "harmonic": {},
-            #     },
-            # },
-        },
+        # "Admission": {
+        #     "path": "data/admission.csv",
+        #     "Full dataset": {
+        #         "auth_methods": {
+        #             None: {},
+        #             "relative": {},
+        #             "absolute": {},
+        #             "product": {},
+        #             "harmonic": {},
+        #         },
+        #     },
+        #     # "Consistent subset": {
+        #     #     "auth_methods": {
+        #     #         None: {},
+        #     #         "relative": {},
+        #     #         "absolute": {},
+        #     #         "product": {},
+        #     #         "harmonic": {},
+        #     #     },
+        #     # },
+        # },
         "Churn": {
             "path": "data/churn.csv",
             "Full dataset": {
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     }
     exp_dict = authoritativeness.experiment(exp_dict)
     for name in exp_dict:
-        print(f"\nFor {name}:")
+        results = ""
         full_dataset = exp_dict[name].get("Full dataset")
         for auth_method in full_dataset["auth_methods"]:
             mean = full_dataset["auth_methods"][auth_method]["mean"]
@@ -91,5 +91,8 @@ if __name__ == "__main__":
             row = generate_row(
                 mean, std, n_inconsistent_forcings, trivial, none, some, all
             )
-            print(row)
-            print("&")
+            results += row
+            results += "&"
+        with open(f"results/{name}.txt", "w") as f:
+            print(f"Writing results for {name}.")
+            f.write(results)
