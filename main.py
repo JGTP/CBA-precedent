@@ -10,27 +10,18 @@ def generate_row(mean, std, n_inconsistent_forcings, trivial, none, some, all):
 
 if __name__ == "__main__":
     exp_dict = {
-        # "Admission": {
-        #     "path": "data/admission.csv",
-        #     "Full dataset": {
-        #         "auth_methods": {
-        #             None: {},
-        #             "relative": {},
-        #             "absolute": {},
-        #             "product": {},
-        #             "harmonic": {},
-        #         },
-        #     },
-        #     # "Consistent subset": {
-        #     #     "auth_methods": {
-        #     #         None: {},
-        #     #         "relative": {},
-        #     #         "absolute": {},
-        #     #         "product": {},
-        #     #         "harmonic": {},
-        #     #     },
-        #     # },
-        # },
+        "Admission": {
+            "path": "data/admission.csv",
+            "Full dataset": {
+                "auth_methods": {
+                    None: {},
+                    "relative": {},
+                    "absolute": {},
+                    "product": {},
+                    "harmonic": {},
+                },
+            },
+        },
         "Churn": {
             "path": "data/churn.csv",
             "Full dataset": {
@@ -42,15 +33,6 @@ if __name__ == "__main__":
                     "harmonic": {},
                 },
             },
-            # "Consistent subset": {
-            #     "auth_methods": {
-            #         None: {},
-            #         "relative": {},
-            #         "absolute": {},
-            #         "product": {},
-            #         "harmonic": {},
-            #     },
-            # },
         },
         # "Mushroom": {
         #     "path": "data/mushroom.csv",
@@ -63,16 +45,6 @@ if __name__ == "__main__":
         #             "harmonic": {},
         #         },
         #     },
-        #     # "Consistent subset": {
-        #     #     "auth_methods": {
-        #     #         None: {},
-        #     #         "relative": {},
-        #     #         "absolute": {},
-        #     #         "product": {},
-        #     #         "harmonic": {},
-        #     #     },
-        #     # },
-        # },
     }
     exp_dict = authoritativeness.experiment(exp_dict)
     for name in exp_dict:
