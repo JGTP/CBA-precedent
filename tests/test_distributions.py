@@ -7,9 +7,6 @@ def test_best_precedent_distribution_naive(csv_file):
     dict = get_precedent_distribution(CB)
     assert round(dict["mean"], 2) == 2.71
     assert round(dict["std"], 2) == 1.58
-    assert round(dict["empties"], 2) == 2.71
-    assert round(dict["trivials"], 2) == 1.58
-
 
 
 def test_best_precedent_distribution_rel(csv_file):
