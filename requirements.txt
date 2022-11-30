@@ -1,0 +1,7 @@
+numpy
+pandas
+pytest
+sklearn
+tabulate
+termcolor
+tqdm

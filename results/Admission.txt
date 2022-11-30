@@ -1,0 +1,1 @@
+\multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}$\mu=108.73$\\ $\sigma=116.91$\\ $N_{inc}=0$\\ $N_{tws}=442$\\ $N_{none}=42$\\ $N_{some}=0$\\ $N_{all}=0$\end{tabular}}&

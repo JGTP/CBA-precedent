@@ -1,0 +1,19 @@
+===========================================
+Analysing data/compas.csv using the logreg method.
+
+Printing dimension orders.
+Age: Descending (-0.52)
+DaysInJail: Ascending (0.05)
+DaysInCustody: Ascending (0.23)
+Priors: Ascending (0.64)
+Sex: Female (-0.0542) < Male (0.0542)
+ChargeDegree: M (-0.0202) < F (0.0202)
+
+Computing relevant differences between the cases.
+100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5873/5873 [00:45<00:00, 128.59it/s] 
+
+Number of cases: 5873.
+Percentage consistent cases: 8.1%.
+Removals to obtain consistency: 28.4%.
+Percentage trivial cases: 98.5%.
+Number of landmarks: 88.
